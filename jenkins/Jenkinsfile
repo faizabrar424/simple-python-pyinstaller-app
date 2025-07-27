@@ -1,6 +1,5 @@
 pipeline {
     agent none
-
     stages {
         stage('Build') {
             agent {
@@ -9,8 +8,6 @@ pipeline {
                 }
             }
             steps {
-                echo '🔧 Compiling Python files...'
-                sh 'ls -R'
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
             }
         }
@@ -22,8 +19,6 @@ pipeline {
                 }
             }
             steps {
-                echo '🧪 Running tests...'
-                sh 'ls -R'
                 sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
             }
             post {
@@ -37,20 +32,19 @@ pipeline {
             agent {
                 docker {
                     image 'cdrx/pyinstaller-linux:python2'
+                    args '--entrypoint=""'
                 }
             }
             steps {
-                echo '📦 Creating executable with PyInstaller...'
-                sh 'ls -R'
-                sh 'pyinstaller --onefile --log-level=DEBUG sources/add2vals.py'
-                sh 'ls -l dist' // Verifikasi file hasil build
+                echo '📦 Membuat executable dengan PyInstaller...'
+                sh 'pyinstaller --onefile sources/add2vals.py'
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'dist/add2vals', onlyIfSuccessful: true
+                    archiveArtifacts 'dist/add2vals'
                 }
                 failure {
-                    echo '❌ Deliver stage failed. Check PyInstaller logs for details.'
+                    echo '❌ Gagal membuat executable. Cek log PyInstaller untuk detail.'
                 }
             }
         }
