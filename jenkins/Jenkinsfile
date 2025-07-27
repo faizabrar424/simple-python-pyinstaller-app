@@ -11,7 +11,6 @@ pipeline {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
             }
         }
-
         stage('Test') {
             agent {
                 docker {
@@ -27,12 +26,11 @@ pipeline {
                 }
             }
         }
-
         stage('Deliver') {
             agent {
                 docker {
-                    image 'cdrx/pyinstaller-linux:python2'
-                    args '--entrypoint=""'
+                    image 'six8/pyinstaller-alpine-linux-amd64:alpine-3.12-python-2.7-pyinstaller-v3.4'
+                    args '--entrypoint=""'  // agar perintah dari Jenkins bisa dijalankan
                 }
             }
             steps {
